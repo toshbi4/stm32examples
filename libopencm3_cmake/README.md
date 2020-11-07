@@ -5,7 +5,10 @@ EXTI example for libopencm3
 
 Команды для сборки:
 
-mkdir build
-cmake .. -DCMAKE_TOOLCHAIN_FILE=cmake/cortex-m3.cmake
-make libopencm3
-make
+  mkdir build
+
+  cmake .. -DCMAKE_TOOLCHAIN_FILE=cmake/cortex-m3.cmake
+
+  make libopencm3
+
+  make

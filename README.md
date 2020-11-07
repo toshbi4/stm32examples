@@ -1,5 +1,9 @@
 # stm32examples
 
+Don't forget to upload submodules by command:
+
+git submodule update --init --recursive
+
 For uploading firmware by st-link:
 
   1. On Linux

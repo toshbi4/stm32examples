@@ -1,9 +1,12 @@
 # stm32f103-libopencm3-exti
-EXTI example for libopencm3
 
-Пример использования EXTI для stm32f103
+Examples for libopencm3 with cmake
 
-Команды для сборки:
+Don't forget to upload submodules by command:
+
+git submodule update --init --recursive
+
+Building:
 
   mkdir build
 

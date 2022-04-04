@@ -104,14 +104,14 @@ void USART2_IRQHandler(void){
 			//char output[] = "\nf(x)=12.345\r";
 			//sprintf(output, "%f", 1.1);
 
-			char output[12];
+			char output[30] = "                              ";
 			//float num = exp(var);
 			float num = 1 + var + pow(var, 2)/2.0f + pow(var, 3)/6.0f + pow(var, 4)/24.0f + pow(var, 5)/120.0f + pow(var, 6)/720.0f
 					+ pow(var, 7)/5040.0f;
 
 			sprintf(output, "\nf(x)=%.3f\r", num);
 
-			for (int i = 0; i < sizeof(output)-1; i++){
+			for (int i = 0; i < 25; i++){
 				USART2->DR = output[i];
 				while (!(USART2->SR & (1<<6)));
 			}
@@ -134,7 +134,7 @@ void USART2_IRQHandler(void){
 
 int main(void)
 {
-
+	// float operations
 	SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));
 
 	// 0. Set Clocks

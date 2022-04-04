@@ -1,6 +1,8 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <stm32f401xe.h>
 #include <math.h>
+//#include <string.h>
 
 //define main clock value
 #define HCLK 70000000
@@ -24,8 +26,18 @@ void SysTick_Handler(void)
 		if (var == 1){
 			var = 0;
 			GPIOC->ODR |= (1<<RED_LED_PIN);
-			//const char c = 49;
-			//USART2->DR = c;
+
+
+			char output[] = "\nexp(x)=12.132\r";
+
+			float num = 14.12;
+
+			for (uint8_t i = 0; i < sizeof(output)-1; i++){
+				USART2->DR = output[i];
+				while (!(USART2->SR & (1<<6)));
+			}
+
+			//USART2->DR = '\n';
 		} else {
 			var = 1;
 			GPIOC->ODR &= ~(1<<RED_LED_PIN);
@@ -169,10 +181,11 @@ int main(void)
 	// 3. Enable interrupts in the interrupt controller.
 	NVIC_EnableIRQ(USART2_IRQn);
 
-	__enable_irq ();
+	//__enable_irq ();
+
+	//sprintf(output, "%f", num);
 
 	while(1){
 
 	}
 }
-

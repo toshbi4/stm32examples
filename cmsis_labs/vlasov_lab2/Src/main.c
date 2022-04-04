@@ -50,7 +50,7 @@ int main()
 	RCC->PLLCFGR |= (1 << 22);
 	// Set PLLM
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLM_Msk);
-	RCC->PLLCFGR |= (20 << 0);
+	RCC->PLLCFGR |= (18 << 0);
 	// Set PLLN
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLN_Msk);
 	RCC->PLLCFGR |= (280 << 6);

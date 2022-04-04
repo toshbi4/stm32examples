@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdint.h>
 #include <stm32f446xx.h>
 #include <math.h>
@@ -38,7 +39,7 @@ void ClocksInit(){
 	RCC->PLLCFGR |= (1 << 22);
 	// Set PLLM
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLM_Msk);
-	RCC->PLLCFGR |= (20 << 0);
+	RCC->PLLCFGR |= (18 << 0);
 	// Set PLLN
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLN_Msk);
 	RCC->PLLCFGR |= (280 << 6);
@@ -81,44 +82,61 @@ void USART2_IRQHandler(void){
 	case 'N':
 		if (state == 0){
 			state = 1;
-			USART2->DR = read_char;
+			//USART2->DR = read_char;
 		}
 		break;
 	case 'x':
 		if (state == 1){
 			state = 2 ;
-			USART2->DR = read_char;
+			//USART2->DR = read_char;
 		}
 		break;
 	case '=':
 		if (state == 2){
-					state = 3 ;
-					USART2->DR = read_char;
+			state = 3 ;
+			//USART2->DR = read_char;
 		}
 		break;
 	case 'E':
 		if (state == 5){
-					state = 0;
-					USART2->DR = read_char;
+			state = 0;
+
+			//char output[] = "\nf(x)=12.345\r";
+			//sprintf(output, "%f", 1.1);
+
+			char output[12];
+			//float num = exp(var);
+			float num = 1 + var + pow(var, 2)/2.0f + pow(var, 3)/6.0f + pow(var, 4)/24.0f + pow(var, 5)/120.0f + pow(var, 6)/720.0f
+					+ pow(var, 7)/5040.0f;
+
+			sprintf(output, "\nf(x)=%.3f\r", num);
+
+			for (int i = 0; i < sizeof(output)-1; i++){
+				USART2->DR = output[i];
+				while (!(USART2->SR & (1<<6)));
+			}
 		}
 		break;
 
 	default:
 		if (state == 3){
+			read_char = read_char - '0';
 			var = (uint8_t)read_char * 10;
-			USART2->DR = read_char;
+			state = 4;
 		} else if (state == 4){
-			USART2->DR = read_char;
+			read_char = read_char - '0';
 			var = var + (uint8_t)read_char;
-			//USART2->DR = var;
+			state = 5;
 		}
 		break;
 	}
-	//NVIC_EnableIRQ(USART2_IRQn);
 }
 
 int main(void)
 {
+
+	SCB->CPACR |= ((3UL << 10*2) | (3UL << 11*2));
+
 	// 0. Set Clocks
 	ClocksInit();
 

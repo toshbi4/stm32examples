@@ -40,7 +40,7 @@ all: vlasov_lab3.elf secondary-outputs
 
 # Tool invocations
 vlasov_lab3.elf: $(OBJS) $(USER_OBJS) C:\Users\antpo\Desktop\ITMO\Master\2\ semester\RSH\stm32examples\cmsis_labs\vlasov_lab3\STM32F446RETX_FLASH.ld
-	arm-none-eabi-gcc -o "vlasov_lab3.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\antpo\Desktop\ITMO\Master\2 semester\RSH\stm32examples\cmsis_labs\vlasov_lab3\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vlasov_lab3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+	arm-none-eabi-gcc -o "vlasov_lab3.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\antpo\Desktop\ITMO\Master\2 semester\RSH\stm32examples\cmsis_labs\vlasov_lab3\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="vlasov_lab3.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

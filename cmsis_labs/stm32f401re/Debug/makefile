@@ -39,8 +39,8 @@ stm32f401re.bin \
 all: stm32f401re.elf secondary-outputs
 
 # Tool invocations
-stm32f401re.elf: $(OBJS) $(USER_OBJS) C:\Users\antpo\Desktop\ITMO\Master\2\ semester\RSH\labs\stm32f401re\STM32F401RETX_FLASH.ld
-	arm-none-eabi-gcc -o "stm32f401re.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\antpo\Desktop\ITMO\Master\2 semester\RSH\labs\stm32f401re\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32f401re.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+stm32f401re.elf: $(OBJS) $(USER_OBJS) C:\Users\antpo\Desktop\ITMO\Master\2\ semester\RSH\stm32examples\cmsis_labs\stm32f401re\STM32F401RETX_FLASH.ld
+	arm-none-eabi-gcc -o "stm32f401re.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\antpo\Desktop\ITMO\Master\2 semester\RSH\stm32examples\cmsis_labs\stm32f401re\STM32F401RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="stm32f401re.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

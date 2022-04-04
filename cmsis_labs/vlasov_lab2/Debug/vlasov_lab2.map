@@ -679,11 +679,10 @@ OUTPUT(vlasov_lab2.elf elf32-littlearm)
  .debug_line    0x0000000000000000      0x4b5 Src/main.o
  .debug_line    0x00000000000004b5       0x84 Startup/startup_stm32f446retx.o
 
-.debug_str      0x0000000000000000    0x8abf9
- .debug_str     0x0000000000000000    0x8abc8 Src/main.o
-                                      0x8ad95 (size before relaxing)
- .debug_str     0x000000000008abc8       0x31 Startup/startup_stm32f446retx.o
-                                         0x7a (size before relaxing)
+.debug_str      0x0000000000000000    0x8ac56
+ .debug_str     0x0000000000000000    0x8abdc Src/main.o
+                                      0x8ada9 (size before relaxing)
+ .debug_str     0x000000000008abdc       0x7a Startup/startup_stm32f446retx.o
 
 .comment        0x0000000000000000       0x7b
  .comment       0x0000000000000000       0x7b Src/main.o

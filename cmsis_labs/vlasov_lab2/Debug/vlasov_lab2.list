@@ -39,11 +39,11 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
  17 .debug_line   00000539  00000000  00000000  000395f0  2**0
                   CONTENTS, READONLY, DEBUGGING
- 18 .debug_str    0008abf9  00000000  00000000  00039b29  2**0
+ 18 .debug_str    0008ac56  00000000  00000000  00039b29  2**0
                   CONTENTS, READONLY, DEBUGGING
- 19 .comment      0000007b  00000000  00000000  000c4722  2**0
+ 19 .comment      0000007b  00000000  00000000  000c477f  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000000c4  00000000  00000000  000c47a0  2**2
+ 20 .debug_frame  000000c4  00000000  00000000  000c47fc  2**2
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -327,11 +327,11 @@ int main()
  8000374:	4a30      	ldr	r2, [pc, #192]	; (8000438 <main+0x11c>)
  8000376:	f023 033f 	bic.w	r3, r3, #63	; 0x3f
  800037a:	6053      	str	r3, [r2, #4]
-	RCC->PLLCFGR |= (20 << 0);
+	RCC->PLLCFGR |= (18 << 0);
  800037c:	4b2e      	ldr	r3, [pc, #184]	; (8000438 <main+0x11c>)
  800037e:	685b      	ldr	r3, [r3, #4]
  8000380:	4a2d      	ldr	r2, [pc, #180]	; (8000438 <main+0x11c>)
- 8000382:	f043 0314 	orr.w	r3, r3, #20
+ 8000382:	f043 0312 	orr.w	r3, r3, #18
  8000386:	6053      	str	r3, [r2, #4]
 	// Set PLLN
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLN_Msk);
@@ -437,109 +437,49 @@ int main()
  8000440:	20000000 	.word	0x20000000
 
 08000444 <Reset_Handler>:
-
-  .section .text.Reset_Handler
-  .weak Reset_Handler
-  .type Reset_Handler, %function
-Reset_Handler:
-  ldr   r0, =_estack
  8000444:	480d      	ldr	r0, [pc, #52]	; (800047c <LoopForever+0x2>)
-  mov   sp, r0          /* set stack pointer */
  8000446:	4685      	mov	sp, r0
-
-/* Copy the data segment initializers from flash to SRAM */
-  ldr r0, =_sdata
  8000448:	480d      	ldr	r0, [pc, #52]	; (8000480 <LoopForever+0x6>)
-  ldr r1, =_edata
  800044a:	490e      	ldr	r1, [pc, #56]	; (8000484 <LoopForever+0xa>)
-  ldr r2, =_sidata
  800044c:	4a0e      	ldr	r2, [pc, #56]	; (8000488 <LoopForever+0xe>)
-  movs r3, #0
  800044e:	2300      	movs	r3, #0
-  b LoopCopyDataInit
  8000450:	e002      	b.n	8000458 <LoopCopyDataInit>
 
 08000452 <CopyDataInit>:
-
-CopyDataInit:
-  ldr r4, [r2, r3]
  8000452:	58d4      	ldr	r4, [r2, r3]
-  str r4, [r0, r3]
  8000454:	50c4      	str	r4, [r0, r3]
-  adds r3, r3, #4
  8000456:	3304      	adds	r3, #4
 
 08000458 <LoopCopyDataInit>:
-
-LoopCopyDataInit:
-  adds r4, r0, r3
  8000458:	18c4      	adds	r4, r0, r3
-  cmp r4, r1
  800045a:	428c      	cmp	r4, r1
-  bcc CopyDataInit
  800045c:	d3f9      	bcc.n	8000452 <CopyDataInit>
-
-/* Zero fill the bss segment. */
-  ldr r2, =_sbss
  800045e:	4a0b      	ldr	r2, [pc, #44]	; (800048c <LoopForever+0x12>)
-  ldr r4, =_ebss
  8000460:	4c0b      	ldr	r4, [pc, #44]	; (8000490 <LoopForever+0x16>)
-  movs r3, #0
  8000462:	2300      	movs	r3, #0
-  b LoopFillZerobss
  8000464:	e001      	b.n	800046a <LoopFillZerobss>
 
 08000466 <FillZerobss>:
-
-FillZerobss:
-  str  r3, [r2]
  8000466:	6013      	str	r3, [r2, #0]
-  adds r2, r2, #4
  8000468:	3204      	adds	r2, #4
 
 0800046a <LoopFillZerobss>:
-
-LoopFillZerobss:
-  cmp r2, r4
  800046a:	42a2      	cmp	r2, r4
-  bcc FillZerobss
  800046c:	d3fb      	bcc.n	8000466 <FillZerobss>
-
-/* Call the clock system intitialization function.*/
-  bl  SystemInit
  800046e:	f3af 8000 	nop.w
-/* Call static constructors */
-  bl __libc_init_array
  8000472:	f000 f811 	bl	8000498 <__libc_init_array>
-/* Call the application's entry point.*/
-  bl main
  8000476:	f7ff ff51 	bl	800031c <main>
 
 0800047a <LoopForever>:
-
-LoopForever:
-    b LoopForever
  800047a:	e7fe      	b.n	800047a <LoopForever>
-  ldr   r0, =_estack
  800047c:	20020000 	.word	0x20020000
-  ldr r0, =_sdata
  8000480:	20000000 	.word	0x20000000
-  ldr r1, =_edata
  8000484:	20000004 	.word	0x20000004
-  ldr r2, =_sidata
  8000488:	08000500 	.word	0x08000500
-  ldr r2, =_sbss
  800048c:	20000004 	.word	0x20000004
-  ldr r4, =_ebss
  8000490:	20000028 	.word	0x20000028
 
 08000494 <ADC_IRQHandler>:
- * @retval : None
-*/
-  .section .text.Default_Handler,"ax",%progbits
-Default_Handler:
-Infinite_Loop:
-  b Infinite_Loop
  8000494:	e7fe      	b.n	8000494 <ADC_IRQHandler>
 	...
 

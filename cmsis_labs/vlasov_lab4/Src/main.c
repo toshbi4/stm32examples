@@ -14,7 +14,11 @@ uint8_t RED_LED_PIN = 9;
 uint8_t var=0;
 uint8_t state = 0;
 
+uint8_t tx_data[10];
+uint8_t rx_data[10];
+
 #define APB1_FREQ 35000000
+#define APB1_TIM_FREQ (35000000 * 2)
 #define BAUDRATE 115200
 
 void ClocksInit(){
@@ -58,78 +62,30 @@ void ClocksInit(){
 
 	// GPIOC_EN and GPIOA_EN
 	RCC->AHB1ENR |= (1 << 2) | (1 << 0);
+
 	GPIOC->MODER |= (1 << RED_LED_PIN*2);
 	GPIOC->ODR &= ~(1 << RED_LED_PIN);
 
 	SysTick_Config(SysTicks); //SysTick Enable and configuration
 }
 
-void USART2_IRQHandler(void){
-	//4.	Create a function - USART interrupts handler.
+void TIM2_IRQHandler(void){
 
-	uint8_t read_char = USART2->DR;
-	//const char c = 49;
-	//const char b = 50;
-/*
-	if (read_char == 'E'){
-		USART2->DR = c;
-		state = 1;
-	} else if (read_char == 'N'){
-		USART2->DR = b;
-	}*/
+	TIM2->SR &= ~(TIM_SR_UIF);
+	// Enable transmit
+	DMA1_Stream6->NDTR = 10;
+	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF6_Pos) | DMA_HIFCR_CHTIF6;
+	DMA1_Stream6->CR |= DMA_SxCR_EN;
+	//USART2->DR = 'c';
 
-	switch (read_char) {
-	case 'N':
-		if (state == 0){
-			state = 1;
-			//USART2->DR = read_char;
-		}
-		break;
-	case 'x':
-		if (state == 1){
-			state = 2 ;
-			//USART2->DR = read_char;
-		}
-		break;
-	case '=':
-		if (state == 2){
-			state = 3 ;
-			//USART2->DR = read_char;
-		}
-		break;
-	case 'E':
-		if (state == 5){
-			state = 0;
+}
 
-			//char output[] = "\nf(x)=12.345\r";
-			//sprintf(output, "%f", 1.1);
+void DMA1_Stream5_IRQHandler(void){
 
-			char output[30] = "                              ";
-			//float num = exp(var);
-			float num = 1 + var + pow(var, 2)/2.0f + pow(var, 3)/6.0f + pow(var, 4)/24.0f + pow(var, 5)/120.0f + pow(var, 6)/720.0f
-					+ pow(var, 7)/5040.0f;
-
-			sprintf(output, "\nf(x)=%.3f\r", num);
-
-			for (int i = 0; i < 25; i++){
-				USART2->DR = output[i];
-				while (!(USART2->SR & (1<<6)));
-			}
-		}
-		break;
-
-	default:
-		if (state == 3){
-			read_char = read_char - '0';
-			var = (uint8_t)read_char * 10;
-			state = 4;
-		} else if (state == 4){
-			read_char = read_char - '0';
-			var = var + (uint8_t)read_char;
-			state = 5;
-		}
-		break;
-	}
+	tx_data[0] = rx_data[0];
+	DMA1_Stream5->NDTR = 10;
+	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF5_Pos) | DMA_HIFCR_CHTIF5;
+	DMA1_Stream5->CR |= DMA_SxCR_EN;
 }
 
 int main(void)
@@ -153,9 +109,47 @@ int main(void)
 	/* 2. Configure USART to receive and
 	* transmit data, generate the required
 	* interrupt. */
-	USART2->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE/* | USART_CR1_TXEIE*/;
-	// 3. Enable interrupts in the interrupt controller.
-	NVIC_EnableIRQ(USART2_IRQn);
+	USART2->CR1 |= USART_CR1_UE | USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE /*| USART_CR1_TXEIE*/;
+
+	//Lab4
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
+
+	TIM2->PSC = 35000 - 1;
+	//TIM2->CNT = 2000;
+	TIM2->ARR = 2000;
+	TIM2->CR1 |= TIM_CR1_CEN;
+	TIM2->CR1 &= ~(TIM_CR1_DIR); //up-counter mode
+	TIM2->CR1 |= TIM_CR1_ARPE; // Enable auto-preload buffer
+	TIM2->DIER |= TIM_DIER_UIE; //Enable update interrupt
+
+	USART2->CR3 |= USART_CR3_DMAT;
+	USART2->CR3 |= USART_CR3_DMAR;
+
+	RCC->AHB1ENR |= RCC_AHB1ENR_DMA1EN;
+
+	// Mem to periph, mem address is incremented,
+	DMA1_Stream6->CR |= DMA_SxCR_DIR_0 | DMA_SxCR_MINC | DMA_SxCR_CHSEL_2;
+	DMA1_Stream6->PAR = (uint32_t) &USART2->DR;
+	DMA1_Stream6->M0AR = (uint32_t) &tx_data;
+	tx_data[0] = 1;
+
+	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF6_Pos) | DMA_HIFCR_CHTIF6;
+	DMA1_Stream6->NDTR = 10;
+	DMA1_Stream6->CR |= DMA_SxCR_EN;
+
+
+	// Mem to periph, mem address is incremented,
+	DMA1_Stream5->CR |= DMA_SxCR_MINC | DMA_SxCR_CHSEL_2 | DMA_SxCR_TCIE;
+	DMA1_Stream5->PAR = (uint32_t) &USART2->DR;
+	DMA1_Stream5->M0AR = (uint32_t) &rx_data;
+
+	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF5_Pos) | DMA_HIFCR_CHTIF5;
+	DMA1_Stream5->NDTR = 10;
+	DMA1_Stream5->CR |= DMA_SxCR_EN;
+
+	NVIC_EnableIRQ(TIM2_IRQn);
+	NVIC_EnableIRQ(DMA1_Stream5_IRQn);
+	//NVIC_EnableIRQ(USART2_IRQn);
 
 	while(1){
 

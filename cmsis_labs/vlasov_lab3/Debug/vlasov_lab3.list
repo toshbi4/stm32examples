@@ -1190,11 +1190,11 @@ void ClocksInit(){
  8000db4:	4a30      	ldr	r2, [pc, #192]	; (8000e78 <ClocksInit+0x11c>)
  8000db6:	f023 033f 	bic.w	r3, r3, #63	; 0x3f
  8000dba:	6053      	str	r3, [r2, #4]
-	RCC->PLLCFGR |= (18 << 0);
+	RCC->PLLCFGR |= (4 << 0);
  8000dbc:	4b2e      	ldr	r3, [pc, #184]	; (8000e78 <ClocksInit+0x11c>)
  8000dbe:	685b      	ldr	r3, [r3, #4]
  8000dc0:	4a2d      	ldr	r2, [pc, #180]	; (8000e78 <ClocksInit+0x11c>)
- 8000dc2:	f043 0312 	orr.w	r3, r3, #18
+ 8000dc2:	f043 0304 	orr.w	r3, r3, #4
  8000dc6:	6053      	str	r3, [r2, #4]
 	// Set PLLN
 	RCC->PLLCFGR &= ~(RCC_PLLCFGR_PLLN_Msk);

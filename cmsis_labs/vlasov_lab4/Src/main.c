@@ -14,8 +14,15 @@ uint8_t RED_LED_PIN = 9;
 uint8_t var=0;
 uint8_t state = 0;
 
-uint8_t tx_data[10];
-uint8_t rx_data[10];
+uint8_t bias = 0;
+uint8_t amp = 0;
+uint8_t freq = 0;
+uint8_t phase = 0;
+
+int32_t tx_data[3];
+uint8_t rx_data[6];
+
+float time = 0;
 
 #define APB1_FREQ 35000000
 #define APB1_TIM_FREQ (35000000 * 2)
@@ -73,17 +80,41 @@ void TIM2_IRQHandler(void){
 
 	TIM2->SR &= ~(TIM_SR_UIF);
 	// Enable transmit
-	DMA1_Stream6->NDTR = 10;
+	DMA1_Stream6->NDTR = 12;
 	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF6_Pos) | DMA_HIFCR_CHTIF6;
 	DMA1_Stream6->CR |= DMA_SxCR_EN;
+
 	//USART2->DR = 'c';
 
 }
 
 void DMA1_Stream5_IRQHandler(void){
 
-	tx_data[0] = rx_data[0];
-	DMA1_Stream5->NDTR = 10;
+
+
+	uint8_t bias2 = rx_data[1];
+	uint8_t amp2 = rx_data[2];
+	uint8_t freq2 = rx_data[3];
+	uint8_t phase2 = rx_data[4];
+
+	float a = (sin(time*freq2 + phase2) * amp2 + bias2) * 1000;
+
+	if (time <= 10){
+		time += 0.01;
+	}
+
+
+	int32_t test_data[3];
+
+	tx_data[0] = 'SSSS';
+	tx_data[1] = a;
+	tx_data[2] = 'EEEE';
+
+	//float num = sin(30 * M_PI / 180);
+	//sprintf(tx_data, "S%.3fE", num);
+
+	//tx_data[0] = rx_data[0];
+	DMA1_Stream5->NDTR = 6;
 	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF5_Pos) | DMA_HIFCR_CHTIF5;
 	DMA1_Stream5->CR |= DMA_SxCR_EN;
 }
@@ -131,10 +162,10 @@ int main(void)
 	DMA1_Stream6->CR |= DMA_SxCR_DIR_0 | DMA_SxCR_MINC | DMA_SxCR_CHSEL_2;
 	DMA1_Stream6->PAR = (uint32_t) &USART2->DR;
 	DMA1_Stream6->M0AR = (uint32_t) &tx_data;
-	tx_data[0] = 1;
+	//tx_data[0] = 1;
 
 	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF6_Pos) | DMA_HIFCR_CHTIF6;
-	DMA1_Stream6->NDTR = 10;
+	DMA1_Stream6->NDTR = 12;
 	DMA1_Stream6->CR |= DMA_SxCR_EN;
 
 
@@ -144,7 +175,7 @@ int main(void)
 	DMA1_Stream5->M0AR = (uint32_t) &rx_data;
 
 	DMA1->HIFCR |= (0x1UL << DMA_HIFCR_CTCIF5_Pos) | DMA_HIFCR_CHTIF5;
-	DMA1_Stream5->NDTR = 10;
+	DMA1_Stream5->NDTR = 6;
 	DMA1_Stream5->CR |= DMA_SxCR_EN;
 
 	NVIC_EnableIRQ(TIM2_IRQn);

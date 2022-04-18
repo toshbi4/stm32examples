@@ -1,7 +1,7 @@
 core_cm4.h:1688:22:__NVIC_EnableIRQ	16	static
 core_cm4.h:1816:22:__NVIC_SetPriority	16	static
 core_cm4.h:2022:26:SysTick_Config	16	static
-main.c:24:6:ClocksInit	8	static
-main.c:72:6:TIM2_IRQHandler	4	static
-main.c:83:6:DMA1_Stream5_IRQHandler	4	static
-main.c:91:5:main	8	static
+main.c:31:6:ClocksInit	8	static
+main.c:79:6:TIM2_IRQHandler	4	static
+main.c:91:6:DMA1_Stream5_IRQHandler	48	static
+main.c:122:5:main	8	static
